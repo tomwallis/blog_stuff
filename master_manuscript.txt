@@ -1,0 +1,2 @@
+This is a file in the blog example folder.
+It contains a few lines of text.
