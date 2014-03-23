@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="x-ua-compatible" content="IE=9" >
 
-<title>Importing data</title>
+<title>Generating data</title>
 
 <style type="text/css">
 body, td {
@@ -174,61 +174,163 @@ hljs.initHighlightingOnLoad();
 </script>
 
 
-<!-- MathJax scripts -->
-<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
 
 
 </head>
 
 <body>
-<h1>Importing data</h1>
+<h1>Generating data</h1>
 
-<p>In this post, I will demonstrate one way to import and collate a data set (using the R environment). This is a follow up to <a href="http://tomwallis.info/2014/01/09/a-workflow-principle-avoiding-humans-touching-data/">a post</a> in which I argued that a good principle for reproducible research is to avoid humans touching data. That is, once the data from the experiment are saved we want them to be &ldquo;read only&rdquo; and never altered by a human in some undocumented way (such as editing in a spreadsheet). </p>
+<p>Generating data from a probabalistic model with known parameters is a great way to test that any analysis you have written is working correctly, and to understand statistical methods more generally. In this post I&#39;m going to show you an example of generating (simulating) data from a probabalistic model. A probabalistic model is one that is <em>stochastic</em> in that it doesn&#39;t generate the same data set each time the simulation is run (unlike a deterministic model).</p>
 
-<p>Using R is not the only way to do the following, and I would encourage you to replicate these steps in the environment of your choice. If your scientific computing environment makes following what I do here really hard, maybe you should consider switching&hellip;</p>
+<p>The following is actually the code that I used to generate the data in <a href="TODO_link">my post on importing data</a>, so if you&#39;ve been following this blog then you&#39;re already familiar with the output of this post. This simulated data set consisted of 5 subjects, who were shown 15 trials at each combination of 6 contrasts and 5 spatial frequencies.</p>
 
-<h2>Data set</h2>
+<h2>The predictor variables</h2>
 
-<p>First, we need a data set. To make this more interesting let&#39;s use a classic example from vision science. </p>
+<p>First we set up all the predictor variables (independent or experimental variables) we&#39;re interested in.</p>
 
-<p>Imagine we&#39;ve conducted an experiment similar to the classic Campbell &amp; Robson (1968)<sup>1</sup> study but with a few modifications. As a participant in our experiment, you&#39;re seated in front of a monitor showing a grey screen. You&#39;re going to be shown a sequence of trials, and for each trial you make a response with a button press. 
-On each trial you are asked to keep your eyes on a small dot on the centre of the screen. On each trial, a pattern of dark-and-light stripes (a <em>grating</em>) is shown on one side of the screen (left or right of your eye position). The computer randomly decides whether to present the grating on the left or on the right (the other side just stays as the grey background). You have to respond either &ldquo;grating on the left&rdquo; or &ldquo;grating on the right&rdquo; &ndash; you can&#39;t say &ldquo;I don&#39;t know&rdquo;. The computer waits for your response before showing the next trial. 
-We are going to vary both the <em>contrast</em> of the grating pattern (how different from grey the dark and light stripes are) and also the <em>spatial frequency</em> of the pattern (how wide the bars are) over trials.</p>
+<h3>Variable vectors</h3>
 
-<p>If the contrast is so low that you can&#39;t see the grating, your responses across many trials will be near chance performance (here 50% correct). If the grating is really easy to see, your performance will be near 100%. We determine how your performance on the task changes as a function of contrast, for each spatial frequency tested.</p>
-
-<p>We&#39;ve tested 5 subjects in this experiment, showing them 6 contrasts at 5 spatial frequencies, with the targets equally on the left and right. They did 15 trials for each condition (so each subject did 6 * 5 * 15 * 2 = 900 trials). Let&#39;s say that our experiment program saves the data as a <code>.csv</code> file in our project&#39;s <code>/data/</code> directory. We have one <code>.csv</code> file per subject, and one of them might look something like this when opened in a text editor:</p>
-
-<pre><code>TODO example image of text file.
+<pre><code class="r">(subjects &lt;- paste0(&quot;S&quot;, 1:5))
 </code></pre>
 
-<p>A few things to notice here: each comma <code>,</code> in the file denotes a new column, and each new line denotes a row. Secondly, note that there&#39;s a header row: the first line of the file contains column names for our variables. Finally, notice how our <code>target_side</code> and <code>response</code> columns contain text strings (<code>left</code> and <code>right</code>). This will be important later.</p>
-
-<pre><code class="r">summary(cars)
+<pre><code>## [1] &quot;S1&quot; &quot;S2&quot; &quot;S3&quot; &quot;S4&quot; &quot;S5&quot;
 </code></pre>
 
-<pre><code>##      speed           dist    
-##  Min.   : 4.0   Min.   :  2  
-##  1st Qu.:12.0   1st Qu.: 26  
-##  Median :15.0   Median : 36  
-##  Mean   :15.4   Mean   : 43  
-##  3rd Qu.:19.0   3rd Qu.: 56  
-##  Max.   :25.0   Max.   :120
+<p>As we&#39;ve discussed, the <code>paste0</code> command is for concatenating (sticking together) strings. The command above creates a character vector of five strings, starting with &ldquo;S1&rdquo;.</p>
+
+<pre><code class="r">(contrasts &lt;- exp(seq(-5, -1, l = 6)))
 </code></pre>
 
-<p>Test equation:</p>
+<pre><code>## [1] 0.006738 0.014996 0.033373 0.074274 0.165299 0.367879
+</code></pre>
 
-<p>\[  \eta = \gamma + \beta^2 \]</p>
+<p>This creates a vector of length 6 containing log-spaced contrast values&hellip; and so on for other variables:</p>
 
-<h2>PS</h2>
+<pre><code class="r">(sfs &lt;- exp(seq(log(0.5), log(40), l = 5)))
+</code></pre>
 
-<p>This blog was written in R Markdown (in R Studio as a .Rmd file -&gt; &ldquo;knit HTML&rdquo;, then paste the .md code directly into wordpress&hellip; too easy!)</p>
+<pre><code>## [1]  0.500  1.495  4.472 13.375 40.000
+</code></pre>
 
-<hr/>
+<pre><code class="r">target_sides &lt;- c(&quot;left&quot;, &quot;right&quot;)
+(n_trials &lt;- 15)
+</code></pre>
 
-<p>[1] Campbell, F. W., &amp; Robson, J. G. (1968). Application of Fourier analysis to the visibility of gratings. The Journal of Physiology, 197(3), 551–566.</p>
+<pre><code>## [1] 15
+</code></pre>
+
+<h3>Combining the variables</h3>
+
+<p>Now that we&#39;ve set up the independent variables from the experiment, we want to create a data frame with one row for each combination of the variables for each subject. We can do this easily with R&#39;s <code>expand.grid</code> command.</p>
+
+<pre><code class="r">dat &lt;- expand.grid(subject = subjects, contrast = contrasts, sf = sfs, target_side = target_sides, 
+    trial = 1:n_trials)
+head(dat)
+</code></pre>
+
+<pre><code>##   subject contrast  sf target_side trial
+## 1      S1 0.006738 0.5        left     1
+## 2      S2 0.006738 0.5        left     1
+## 3      S3 0.006738 0.5        left     1
+## 4      S4 0.006738 0.5        left     1
+## 5      S5 0.006738 0.5        left     1
+## 6      S1 0.014996 0.5        left     1
+</code></pre>
+
+<p>You can see from the first few rows of <code>dat</code> what <code>expand.grid</code> has done: it has created a data frame (called <code>dat</code>) that contains each combination of the variables entered. A call to <code>summary</code> shows us how R has usefully made factors out of string variables (subject and target side):</p>
+
+<pre><code class="r">summary(dat)
+</code></pre>
+
+<pre><code>##  subject     contrast            sf        target_side      trial   
+##  S1:900   Min.   :0.0067   Min.   : 0.50   left :2250   Min.   : 1  
+##  S2:900   1st Qu.:0.0150   1st Qu.: 1.50   right:2250   1st Qu.: 4  
+##  S3:900   Median :0.0538   Median : 4.47                Median : 8  
+##  S4:900   Mean   :0.1104   Mean   :11.97                Mean   : 8  
+##  S5:900   3rd Qu.:0.1653   3rd Qu.:13.37                3rd Qu.:12  
+##           Max.   :0.3679   Max.   :40.00                Max.   :15
+</code></pre>
+
+<p>You can tell that something is a factor because instead of showing the summary statistics (mean, median) it just shows how many instances of each level there are.</p>
+
+<p>To make the modelling a bit simpler, we&#39;re also going to create a factor of spatial frequency:</p>
+
+<pre><code class="r">dat$sf_factor &lt;- factor(round(dat$sf, digits = 2))
+summary(dat)
+</code></pre>
+
+<pre><code>##  subject     contrast            sf        target_side      trial   
+##  S1:900   Min.   :0.0067   Min.   : 0.50   left :2250   Min.   : 1  
+##  S2:900   1st Qu.:0.0150   1st Qu.: 1.50   right:2250   1st Qu.: 4  
+##  S3:900   Median :0.0538   Median : 4.47                Median : 8  
+##  S4:900   Mean   :0.1104   Mean   :11.97                Mean   : 8  
+##  S5:900   3rd Qu.:0.1653   3rd Qu.:13.37                3rd Qu.:12  
+##           Max.   :0.3679   Max.   :40.00                Max.   :15  
+##  sf_factor  
+##  0.5  :900  
+##  1.5  :900  
+##  4.47 :900  
+##  13.37:900  
+##  40   :900  
+## 
+</code></pre>
+
+<h2>The data model</h2>
+
+<p>Now that we have the data frame for the experimental variables, we want to think about how to generate a lawful (but probabalistic) relationship between the experimental variables and the outcome variable (in this case, getting a trial correct or incorrect). I am going to do this in the framework of a logistic Generalised Linear Model. </p>
+
+<p>For this data set, let&#39;s say that each &ldquo;subject&#39;s&rdquo; chance of getting the trial correct is a function of the contrast and the spatial frequency on the trial. I&#39;m going to treat contrast as a continuous predictor (aka a <em>covariate</em>) and spatial frequency as a factor. I could treat both as continuous, but visual sensitivity as a function of spatial frequency is non-monotonic, so I thought this blog post would be simpler if I just treat my five levels as discrete. In a simple GLM this means that each subject will have six coefficients: an intercept, the slope of contrast, and the offset for each level of spatial frequency. </p>
+
+<p>R is pretty amazing for doing stuff in a GLM framework. For this example, we can generate the design matrix for our data frame <code>dat</code> using the <code>model.matrix</code> function:</p>
+
+<pre><code class="r">X &lt;- model.matrix(~contrast + sf_factor, data = dat)
+head(X)
+</code></pre>
+
+<pre><code>##   (Intercept) contrast sf_factor1.5 sf_factor4.47 sf_factor13.37
+## 1           1 0.006738            0             0              0
+## 2           1 0.006738            0             0              0
+## 3           1 0.006738            0             0              0
+## 4           1 0.006738            0             0              0
+## 5           1 0.006738            0             0              0
+## 6           1 0.014996            0             0              0
+##   sf_factor40
+## 1           0
+## 2           0
+## 3           0
+## 4           0
+## 5           0
+## 6           0
+</code></pre>
+
+<p>The formula <code>~ contrast + sf_factor</code> tells R that we want to predict something using contrast (a covariate) and additive terms of the factor <code>sf_factor</code>. If we changed the <code>+</code> to a <code>*</code> this would give us all the interaction terms too (i.e. the slope would be allowed to vary with spatial frequency). Note how our first 6 rows have all zeros for the columns of <code>sf_factor</code>: this is because all the first rows in <code>dat</code> are from sf 0.5, which here is the reference level. R has automatically dummy coded <code>sf_factor</code>, dropping the reference level.</p>
+
+<p>Next we need our &ldquo;true&rdquo; coefficients for each subject. I will generate these as samples from a normal distribution (this is where the first <em>stochastic</em> part of our data generation comes in). But first, I will set R&#39;s random number seed so that you can produce the results described here (i.e. this will make the result deterministic). If you want stochasticity again, just comment out this line:</p>
+
+<pre><code class="r">set.seed(424242)
+</code></pre>
+
+<p>Now the coefficients:</p>
+
+<pre><code class="r">b0 &lt;- rnorm(length(subjects), mean = -2, sd = 0.1)  # intercept
+b1 &lt;- rnorm(length(subjects), mean = 2, sd = 0.1)  # slope of contrast
+b2 &lt;- rnorm(length(subjects), mean = 1.5, sd = 0.1)  # sf 1.5
+b3 &lt;- rnorm(length(subjects), mean = 1, sd = 0.1)  # sf 4.4
+b4 &lt;- rnorm(length(subjects), mean = 0, sd = 0.1)  # sf 13
+b5 &lt;- rnorm(length(subjects), mean = -3, sd = 0.1)  # sf 40
+
+# stick these together as a matrix:
+(betas &lt;- matrix(c(b0, b1, b2, b3, b4, b5), nrow = 5))
+</code></pre>
+
+<pre><code>##        [,1]  [,2]  [,3]   [,4]     [,5]   [,6]
+## [1,] -1.956 2.222 1.551 1.0265 -0.13435 -3.069
+## [2,] -1.903 1.987 1.640 1.1112  0.07295 -3.121
+## [3,] -1.924 2.116 1.568 1.0051  0.11721 -3.095
+## [4,] -1.983 2.035 1.621 0.9456  0.09572 -2.895
+## [5,] -1.958 1.961 1.353 1.0204  0.15580 -2.935
+</code></pre>
 
 </body>
 

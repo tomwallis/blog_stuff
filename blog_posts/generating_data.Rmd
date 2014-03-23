@@ -1,0 +1,145 @@
+# Generating data
+
+Generating data from a probabalistic model with known parameters is a great way to test that any analysis you have written is working correctly, and to understand statistical methods more generally. In this post I'm going to show you an example of generating (simulating) data from a probabalistic model. A probabalistic model is one that is *stochastic* in that it doesn't generate the same data set each time the simulation is run (unlike a deterministic model).
+
+The following is actually the code that I used to generate the data in [my post on importing data](TODO_link), so if you've been following this blog then you're already familiar with the output of this post. This simulated data set consisted of 5 subjects, who were shown 15 trials at each combination of 6 contrasts and 5 spatial frequencies.
+
+## The predictor variables
+
+First we set up all the predictor variables (independent or experimental variables) we're interested in.
+
+### Variable vectors
+
+```{r}
+(subjects <- paste0("S", 1:5))
+```
+
+As we've discussed, the `paste0` command is for concatenating (sticking together) strings. The command above creates a character vector of five strings, starting with "S1".
+
+```{r}
+(contrasts <- exp(seq(-5, -1, l = 6)))
+```
+
+This creates a vector of length 6 containing log-spaced contrast values... and so on for other variables:
+
+```{r}
+(sfs <- exp(seq (log(0.5), log(40), l = 5)))
+target_sides <- c("left", "right")
+(n_trials <- 15)
+```
+
+### Combining the variables
+
+Now that we've set up the independent variables from the experiment, we want to create a data frame with one row for each combination of the variables for each subject. We can do this easily with R's `expand.grid` command.
+
+```{r}
+dat <- expand.grid(subject = subjects, contrast = contrasts, 
+                   sf = sfs, target_side = target_sides,
+                   trial = 1:n_trials)
+head(dat)
+
+```
+
+You can see from the first few rows of `dat` what `expand.grid` has done: it has created a data frame (called `dat`) that contains each combination of the variables entered. A call to `summary` shows us how R has usefully made factors out of string variables (subject and target side):
+
+```{r}
+summary(dat)
+```
+
+You can tell that something is a factor because instead of showing the summary statistics (mean, median) it just shows how many instances of each level there are.
+
+To make the modelling a bit simpler, we're also going to create a factor of spatial frequency:
+
+```{r}
+dat$sf_factor <- factor(round(dat$sf, digits = 2))
+summary(dat)
+```
+
+## The data model
+
+Now that we have the data frame for the experimental variables, we want to think about how to generate a lawful (but probabalistic) relationship between the experimental variables and the outcome variable (in this case, getting a trial correct or incorrect). I am going to do this in the framework of a logistic Generalised Linear Model. 
+
+For this data set, let's say that each "subject's" chance of getting the trial correct is a function of the contrast and the spatial frequency on the trial. I'm going to treat contrast as a continuous predictor (aka a *covariate*) and spatial frequency as a factor. I could treat both as continuous, but visual sensitivity as a function of spatial frequency is non-monotonic, so I thought this blog post would be simpler if I just treat my five levels as discrete. In a simple GLM this means that each subject will have six coefficients: an intercept, the slope of contrast, and the offset for each level of spatial frequency. 
+
+### Design matrix
+
+R is pretty amazing for doing stuff in a GLM framework. For this example, we can generate the design matrix for our data frame `dat` using the `model.matrix` function:
+
+```{r}
+X <- model.matrix(~ log(contrast) + sf_factor, data = dat)
+head(X)
+```
+
+The formula `~ log(contrast) + sf_factor` tells R that we want to predict something using contrast (a covariate) and additive terms of the factor `sf_factor`. If we changed the `+` to a `*` this would give us all the interaction terms too (i.e. the slope would be allowed to vary with spatial frequency). Note how our first 6 rows have all zeros for the columns of `sf_factor`: this is because all the first rows in `dat` are from sf 0.5, which here is the reference level. R has automatically dummy coded `sf_factor`, dropping the reference level.
+
+### Coefficients (parameters)
+
+Next we need our "true" coefficients for each subject. I will generate these as samples from a normal distribution (this is where the first *stochastic* part of our data generation comes in). But first, I will set R's random number seed so that you can produce the results described here (i.e. this will make the result deterministic). If you want stochasticity again, just comment out this line:
+
+```{r}
+set.seed(424242)
+```
+
+Now the coefficients:
+```{r}
+b0 <- rnorm(length(subjects), mean = 0.5, sd = 0.1) # intercept
+b1 <- rnorm(length(subjects), mean = 1, sd = 0.1) # slope of contrast
+b2 <- rnorm(length(subjects), mean = 2, sd = 0.1) # sf 1.5
+b3 <- rnorm(length(subjects), mean = 1.5, sd = 0.1) # sf 4.4
+b4 <- rnorm(length(subjects), mean = 0.5, sd = 0.1) # sf 13
+b5 <- rnorm(length(subjects), mean = 0.2, sd = 0.1) # sf 40
+
+# stick these together as a matrix, with each row a subject:
+print(betas <- matrix(c(b0, b1, b2, b3, b4, b5), nrow = 5))
+```
+
+## Generating predictions 
+
+To generate predictions in the linear space of the GLM, we just take the dot product of the design matrix and the betas for each subject:
+
+```{r}
+eta <- rep(NA, length = nrow(dat))
+for (i in 1 : length(subjects)){ # for each subject
+  this_subj <- levels(dat$subject)[i] # which subject?
+  subj_rows <- dat$subject==this_subj # which rows belong to this subject?
+  
+  # create a design matrix, and pull out the betas for this subject:
+  this_X <- model.matrix(~ log(contrast) + sf_factor, data = dat[subj_rows, ])
+  this_betas <- betas[i, ]
+  
+  # mult, stick into eta:
+  eta[subj_rows] <- this_X %*% this_betas
+}
+
+# stick eta into dat:
+dat$eta <- eta
+```
+
+Now we want to turn the linear predictor `eta` into a probability that ranges from 0.5 (chance performance on the task) to 1. To do this we're going to use one of the custom link functions in the `psyphy` package (TODO REF) for fitting psychophysical data in R.
+
+```{r}
+library(psyphy)
+links <- mafc.logit(2)
+
+dat$p <- links$linkinv(dat$eta)
+```
+
+Finally, we want to generate a binary outcome (success or failure, usually denoted 1 and 0) with probability `p` for each trial. We do this using R's `rbinom` function, which generates random samples from the binomial distribution:
+
+```{r}
+dat$y <- rbinom(nrow(dat), 1, prob = dat$p)
+summary(dat)
+```
+
+## Testing range (to be deleted??)
+
+Test that parameters are in a decent range by plotting:
+
+```{r}
+library(ggplot2)
+fig <- ggplot(dat, aes(x = contrast, y = y)) + 
+  stat_summary(fun.data = "mean_cl_boot") + 
+  scale_x_log10() + 
+  facet_grid(subject ~ sf)
+fig
+
