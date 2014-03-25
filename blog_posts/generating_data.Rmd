@@ -2,7 +2,7 @@
 
 Generating data from a probabalistic model with known parameters is a great way to test that any analysis you have written is working correctly, and to understand statistical methods more generally. In this post I'm going to show you an example of generating (simulating) data from a probabalistic model. A probabalistic model is one that is *stochastic* in that it doesn't generate the same data set each time the simulation is run (unlike a deterministic model).
 
-The following is actually the code that I used to generate the data in [my post on importing data](TODO_link), so if you've been following this blog then you're already familiar with the output of this post. This simulated data set consisted of 5 subjects, who were shown 15 trials at each combination of 6 contrasts and 5 spatial frequencies.
+The following is actually the code that I used to generate the data in [my post on importing data](TODO_link), so if you've been following this blog then you're already familiar with the output of this post. This simulated data set consisted of 5 subjects, who were shown 20 trials at each combination of 7 contrasts and 5 spatial frequencies.
 
 ## The predictor variables
 
@@ -17,7 +17,7 @@ First we set up all the predictor variables (independent or experimental variabl
 As we've discussed, the `paste0` command is for concatenating (sticking together) strings. The command above creates a character vector of five strings, starting with "S1".
 
 ```{r}
-(contrasts <- exp(seq(-5, -1, l = 6)))
+(contrasts <- exp(seq(-6, -1, l = 7)))
 ```
 
 This creates a vector of length 6 containing log-spaced contrast values... and so on for other variables:
@@ -25,7 +25,7 @@ This creates a vector of length 6 containing log-spaced contrast values... and s
 ```{r}
 (sfs <- exp(seq (log(0.5), log(40), l = 5)))
 target_sides <- c("left", "right")
-(n_trials <- 15)
+(n_trials <- 20)
 ```
 
 ### Combining the variables
@@ -82,12 +82,12 @@ set.seed(424242)
 
 Now the coefficients:
 ```{r}
-b0 <- rnorm(length(subjects), mean = 0.5, sd = 0.1) # intercept
-b1 <- rnorm(length(subjects), mean = 1, sd = 0.1) # slope of contrast
-b2 <- rnorm(length(subjects), mean = 2, sd = 0.1) # sf 1.5
-b3 <- rnorm(length(subjects), mean = 1.5, sd = 0.1) # sf 4.4
-b4 <- rnorm(length(subjects), mean = 0.5, sd = 0.1) # sf 13
-b5 <- rnorm(length(subjects), mean = 0.2, sd = 0.1) # sf 40
+b0 <- rnorm(length(subjects), mean = 7, sd = 0.2) # intercept
+b1 <- rnorm(length(subjects), mean = 2, sd = 0.2) # slope of contrast
+b2 <- rnorm(length(subjects), mean = 2, sd = 0.2) # sf 1.5
+b3 <- rnorm(length(subjects), mean = 1.5, sd = 0.2) # sf 4.4
+b4 <- rnorm(length(subjects), mean = 0, sd = 0.2) # sf 13
+b5 <- rnorm(length(subjects), mean = -2, sd = 0.2) # sf 40
 
 # stick these together as a matrix, with each row a subject:
 print(betas <- matrix(c(b0, b1, b2, b3, b4, b5), nrow = 5))
@@ -119,9 +119,23 @@ Now we want to turn the linear predictor `eta` into a probability that ranges fr
 
 ```{r}
 library(psyphy)
-links <- mafc.logit(2)
+links <- mafc.weib(2)
 
 dat$p <- links$linkinv(dat$eta)
+```
+
+Test that parameters are in a decent range by plotting:
+
+```{r}
+library(ggplot2)
+fig <- ggplot(dat, aes(x = contrast, y = p)) + 
+  geom_line() + 
+  facet_grid(sf_factor ~ subject) + 
+  coord_cartesian(ylim = c(0.45, 1.05)) +
+  scale_x_log10() + 
+  scale_y_continuous(breaks = c(0.5, 0.75, 1)) + 
+  theme_minimal()
+fig
 ```
 
 Finally, we want to generate a binary outcome (success or failure, usually denoted 1 and 0) with probability `p` for each trial. We do this using R's `rbinom` function, which generates random samples from the binomial distribution:
@@ -131,15 +145,56 @@ dat$y <- rbinom(nrow(dat), 1, prob = dat$p)
 summary(dat)
 ```
 
-## Testing range (to be deleted??)
+### Converting from "y" (correct / incorrect) to "response"
 
-Test that parameters are in a decent range by plotting:
+Here I convert the binary correct / incorrect response above into a "left" or "right" response by the simulated subject on each trial. Note that you wouldn't normally do this, I'm just doing it for demo purposes for the data import post.
 
 ```{r}
-library(ggplot2)
-fig <- ggplot(dat, aes(x = contrast, y = y)) + 
-  stat_summary(fun.data = "mean_cl_boot") + 
-  scale_x_log10() + 
-  facet_grid(subject ~ sf)
-fig
+dat$response <- "left"
+dat$response[dat$target_side == "right" & dat$y == 1] <- "right" # correct on right
+dat$response[dat$target_side == "left" & dat$y == 0] <- "right" # wrong on left
+dat$response <- factor(dat$response)
+```
 
+## Saving the data 
+
+Now I'm going to save a subset of the data here to a series of .csv files. These are the files we imported in [my post on importing data](TODO_link). First, to make the data set look a little more realistic I'm going to shuffle the row order (as if I randomly interleaved trials in an experiment). 
+
+```{r}
+  new_rows <- sample.int(nrow(dat))
+  dat <- dat[new_rows, ]
+```
+
+### Create a unique id for each trial
+I'm going to add a unique identifier (UUID) to each trial. **This is a good thing to do in your experiment script**. It makes it easier to, for example, check that some data set stored in a different table (e.g. eye tracking or brain imaging data) synchs up with the correct psychophysical trial.
+
+```{r}
+  library(uuid)
+  ids <- rep(NA, length = nrow(dat))
+  for (i in 1 : length(ids))
+    ids[i] <- UUIDgenerate()
+
+  dat$unique_id <- ids
+```
+
+### Writing to a file
+To do this I'm going to use the `paste0` command, which you should already be familiar with from the data import post. This allows you to stick strings (text) together.
+On the line with `paste0`, the first part gives us the project working directory, then we go into the `data` directory and finally we create the filename from the subject name.
+
+```{r}
+for (i in 1 : length(subjects)){ # for each subject
+  this_subj <- levels(dat$subject)[i] # which subject?
+
+  # use the subset command to subset the full data frame and remove some variables:
+  this_dat <- subset(dat, subject == this_subj,
+                     select = c(-trial:-y))
+  
+  output_file <- paste0(getwd(), "/data/data_",this_subj,".csv")
+  write.table(this_dat, file = output_file, row.names = FALSE, sep = ",")
+  }
+
+```
+
+## Summing up
+
+That's one way to generate data from an underlying probability model. I've used it to generate some data for my previous blog post, but this is a really great thing to know how to do. It's useful for testing your analysis code (if you don't get back the parameters you put in, you know something is wrong). I also found I learned a lot about statistics more generally by simulating various tests and models.
