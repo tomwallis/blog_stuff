@@ -158,7 +158,7 @@ Now we have a variable in the data frame `dat` that gives a 1 where the subject 
 ## PS
 This blog was written in R Markdown (in R Studio as a .Rmd file -> "knit HTML", then paste the .md code directly into wordpress... too easy!)
 
-You can check out the repository for this and some upcoming posts in my Github repository (TODO).
+You can check out the repository for this and some upcoming posts at my [Github page](https://github.com/tomwallis/blog_stuff).
 
 --------------------
 [1] Campbell, F. W., & Robson, J. G. (1968). Application of Fourier analysis to the visibility of gratings. The Journal of Physiology, 197(3), 551–566.
