@@ -1,0 +1,14 @@
+# Graphically Exploring Data
+
+Your second step after data import should always be to *look at the data*. That means plotting lots of things, and getting a sense of how everything fits together.
+
+```{r}
+library(ggplot2)
+fig <- ggplot(dat, aes(x = contrast, y = y)) + 
+  geom_line() + 
+  facet_grid(sf_factor ~ subject) + 
+  coord_cartesian(ylim = c(0.45, 1.05)) +
+  scale_x_log10() + 
+  scale_y_continuous(breaks = c(0.5, 0.75, 1))
+fig
+```
