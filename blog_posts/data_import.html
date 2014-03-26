@@ -174,10 +174,6 @@ hljs.initHighlightingOnLoad();
 </script>
 
 
-<!-- MathJax scripts -->
-<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
 
 
 </head>
@@ -191,7 +187,7 @@ hljs.initHighlightingOnLoad();
 
 <h2>Data set</h2>
 
-<p>First, we need a data set. To make this more interesting let&#39;s use a classic example from vision science. </p>
+<p>First, we need a data set. To make this more interesting let&#39;s build on a classic paper from vision science. </p>
 
 <p>Imagine we&#39;ve conducted an experiment similar to the classic Campbell &amp; Robson (1968)<sup>1</sup> study but with a few modifications. As a participant in our experiment, you&#39;re seated in front of a monitor showing a grey screen. You&#39;re going to be shown a sequence of trials, and for each trial you make a response with a button press. 
 On each trial you are asked to keep your eyes on a small dot on the centre of the screen. On each trial, a pattern of dark-and-light stripes (a <em>grating</em>) is shown on one side of the screen (left or right of your eye position). The computer randomly decides whether to present the grating on the left or on the right (the other side just stays as the grey background). You have to respond either &ldquo;grating on the left&rdquo; or &ldquo;grating on the right&rdquo; &ndash; you can&#39;t say &ldquo;I don&#39;t know&rdquo;. The computer waits for your response before showing the next trial. 
@@ -199,32 +195,130 @@ We are going to vary both the <em>contrast</em> of the grating pattern (how diff
 
 <p>If the contrast is so low that you can&#39;t see the grating, your responses across many trials will be near chance performance (here 50% correct). If the grating is really easy to see, your performance will be near 100%. We determine how your performance on the task changes as a function of contrast, for each spatial frequency tested.</p>
 
-<p>We&#39;ve tested 5 subjects in this experiment, showing them 6 contrasts at 5 spatial frequencies, with the targets equally on the left and right. They did 15 trials for each condition (so each subject did 6 * 5 * 15 * 2 = 900 trials). Let&#39;s say that our experiment program saves the data as a <code>.csv</code> file in our project&#39;s <code>/data/</code> directory. We have one <code>.csv</code> file per subject, and one of them might look something like this when opened in a text editor:</p>
+<p>We&#39;ve tested 5 subjects in this experiment, showing them 7 contrasts at 5 spatial frequencies, with the targets equally on the left and right. They did 20 trials for each condition (so each subject did 7 * 5 * 20 * 2 = 1400 trials). Let&#39;s say that our experiment program saves the data as a <code>.csv</code> file in our project&#39;s <code>/data/</code> directory. We have one <code>.csv</code> file per subject, and one of them might look something like this when opened in a text editor:</p>
 
 <pre><code>TODO example image of text file.
 </code></pre>
 
-<p>A few things to notice here: each comma <code>,</code> in the file denotes a new column, and each new line denotes a row. Secondly, note that there&#39;s a header row: the first line of the file contains column names for our variables. Finally, notice how our <code>target_side</code> and <code>response</code> columns contain text strings (<code>left</code> and <code>right</code>). This will be important later.</p>
+<p>A few things to notice here: each comma <code>,</code> in the file denotes a new column, and each new line denotes a row. Secondly, note that there&#39;s a header row: the first line of the file contains column names for our variables. </p>
 
-<pre><code class="r">summary(cars)
+<p>Finally, notice how our <code>target_side</code> and <code>response</code> columns contain text strings (<code>left</code> and <code>right</code>). The reason I&#39;ve done this is that it makes the data easily human-readable. It&#39;s obvious what the entries mean (imagine if instead <code>target_side</code> could be either 0 or 1). This can be used to great effect to avoid needing a data key later. </p>
+
+<h2>Installing R</h2>
+
+<p>This couldn&#39;t be simpler. Go <a href="http://cran.r-project.org/">here</a> and get the right binary for your system, install it, then immediately go <a href="http://www.rstudio.com/">here</a> and get RStudio, which is awesome. To follow along with my stuff here, you can install any packages I use (the <code>library()</code> calls in future posts) via RStudio&#39;s &ldquo;Packages&rdquo; tab.</p>
+
+<p>While I&#39;m going to demonstrate this stuff using R, I would encourage you to follow along in your package of choice. I&#39;d be interested to know how easy / hard it is to duplicate this stuff in other environments (for example, last I used Matlab handling <code>.csv</code> files with mixed numeric and text was a massive pain).</p>
+
+<h2>Reading each file into R and putting them together</h2>
+
+<p>Now we want to read each subject&#39;s data file into R, then stick the files together to create one big data file. </p>
+
+<h3>The paste0 command</h3>
+
+<p>To do this, I&#39;m going to make use of the <code>paste</code> command, which allows you to concatenate (stick together) strings. Actually, I&#39;m going to use the <code>paste0</code> command, which is a shortcut for <code>paste</code>. By default <code>paste</code> adds a space between each pasted item, which we usually don&#39;t want. <code>paste0</code> just puts together the items you give it. For example:</p>
+
+<pre><code class="r">paste0(&quot;A text string&quot;, 42, &quot;, another text string&quot;)
 </code></pre>
 
-<pre><code>##      speed           dist    
-##  Min.   : 4.0   Min.   :  2  
-##  1st Qu.:12.0   1st Qu.: 26  
-##  Median :15.0   Median : 36  
-##  Mean   :15.4   Mean   : 43  
-##  3rd Qu.:19.0   3rd Qu.: 56  
-##  Max.   :25.0   Max.   :120
+<pre><code>## [1] &quot;A text string42, another text string&quot;
 </code></pre>
 
-<p>Test equation:</p>
+<p>What we get is that R automatically converts the number &ldquo;42&rdquo; to text, and sticks it together with the preceeding and subsequent stuff. Usefully, we can also include ranges of numbers, which produces a number of strings:</p>
 
-<p>\[  \eta = \gamma + \beta^2 \]</p>
+<pre><code class="r">paste0(&quot;A text string&quot;, 41:43, &quot;, another text string&quot;)
+</code></pre>
+
+<pre><code>## [1] &quot;A text string41, another text string&quot;
+## [2] &quot;A text string42, another text string&quot;
+## [3] &quot;A text string43, another text string&quot;
+</code></pre>
+
+<h3>Read in the damn files already</h3>
+
+<p>The file for subject one is labelled like this:</p>
+
+<p>&ldquo;data_S1.csv&rdquo;</p>
+
+<p>and subject 2&#39;s results are in the file &ldquo;data_S2.csv&rdquo;, and so on. The following script uses a <code>for</code> loop to read in the data, then appends it to a data frame called <code>dat</code>. </p>
+
+<pre><code class="r">dat &lt;- data.frame()  # create an empty data frame.
+setwd(&quot;..&quot;)  # TODO remove up level
+for (i in 1:5) {
+    file &lt;- paste0(getwd(), &quot;/data/data_S&quot;, i, &quot;.csv&quot;)
+    this_dat &lt;- read.csv(file = file)  # read the subject&#39;s file, put in a data frame called this_dat
+    dat &lt;- rbind(dat, this_dat)  # append to larger data frame  
+}
+</code></pre>
+
+<p>What this <code>for</code> loop gives us is a data frame object called <code>dat</code>. Let&#39;s examine it using the <code>str</code> (&ldquo;structure&rdquo;) command:</p>
+
+<pre><code class="r">str(dat)
+</code></pre>
+
+<pre><code>## &#39;data.frame&#39;:    7000 obs. of  6 variables:
+##  $ subject    : Factor w/ 5 levels &quot;S1&quot;,&quot;S2&quot;,&quot;S3&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ contrast   : num  0.0695 0.0131 0.0695 0.0695 0.3679 ...
+##  $ sf         : num  0.5 40 4.47 40 13.37 ...
+##  $ target_side: Factor w/ 2 levels &quot;left&quot;,&quot;right&quot;: 2 2 1 1 1 1 2 2 1 2 ...
+##  $ response   : Factor w/ 2 levels &quot;left&quot;,&quot;right&quot;: 2 1 1 2 1 2 2 1 2 2 ...
+##  $ unique_id  : Factor w/ 7000 levels &quot;00004355-345d-403e-b244-79c8adb8f1f8&quot;,..: 451 983 595 395 277 387 132 809 711 582 ...
+</code></pre>
+
+<h2>Data frames</h2>
+
+<p>Data frames are the most important (or at least useful) data type in R, and what you&#39;re going to be using a lot. Many methods use data frames. The most awesome thing about a data frame is that it can store both numerical data and text. This allows us to read in that <code>csv</code> file no problem, where other basic data types would really struggle (I&#39;m looking at you, Matlab). </p>
+
+<p>Furthermore, data frames can explicitly treat text as a &ldquo;factor&rdquo;, which means that when you fit a model, it won&#39;t try to use this numerically but will rather dummy code it. Note how in the <code>str</code> call above, several variables (in fact, all those that were strings in the <code>.csv</code> file) have been imported as factors. Let&#39;s look at some behaviour of factors now by looking at the summary of our data:</p>
+
+<pre><code class="r">summary(dat)
+</code></pre>
+
+<pre><code>##  subject      contrast            sf        target_side   response   
+##  S1:1400   Min.   :0.0025   Min.   : 0.50   left :3500   left :3488  
+##  S2:1400   1st Qu.:0.0057   1st Qu.: 1.50   right:3500   right:3512  
+##  S3:1400   Median :0.0302   Median : 4.47                            
+##  S4:1400   Mean   :0.0927   Mean   :11.97                            
+##  S5:1400   3rd Qu.:0.1599   3rd Qu.:13.37                            
+##            Max.   :0.3679   Max.   :40.00                            
+##                                                                      
+##                                 unique_id   
+##  00004355-345d-403e-b244-79c8adb8f1f8:   1  
+##  000f3b09-9dde-4dd4-8a97-ad87cfcbc947:   1  
+##  00448030-70e5-4010-b954-4a35c107841e:   1  
+##  0086b264-17ed-4fbb-8e32-8c7814ae6b6a:   1  
+##  00a070b7-f849-4727-a710-0453d6f27c50:   1  
+##  00b414aa-3f65-4b4d-8d12-f0d41ec7ae42:   1  
+##  (Other)                             :6994
+</code></pre>
+
+<p>See how we get some distribution summaries for the covariates (e.g. contrast), but only told how many instances of each factor level there are? Neat huh?</p>
+
+<h2>Data munging</h2>
+
+<p>In our data file there is a &ldquo;response&rdquo; variable, that is a string of the side the subject responded to. What we really want however is to know whether they got the trial correct. That is, is the string in &ldquo;target_side&rdquo; the same as the string in &ldquo;response&rdquo;? Let&#39;s create this new variable now:</p>
+
+<pre><code class="r">dat$correct &lt;- 0  # initialises the variable &#39;correct&#39; with all zeros.
+dat$correct[dat$target_side == dat$response] &lt;- 1  # logical indexing; if target == response, returns TRUE
+summary(dat$correct)
+</code></pre>
+
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00    1.00    1.00    0.77    1.00    1.00
+</code></pre>
+
+<pre><code class="r">hist(dat$correct)
+</code></pre>
+
+<p><img src="data:image/png;base64,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q9V9P55UXx1lvz25d9K0ZVn4VNI8bu2HOjvQtDpyf3dybVLrqBd3r002TKrNUuBr/EOSbya1rp8lX0gekTRtWRamzWfc86e5r0sCBAgQWASBKmrbJnXUNtrqtnoffLRtko5tRjtzvYrUHyS/OXRbU9xeNNQ3afEuuaHeMljTbdL8Z3nczTL4blPuUJ73nHJ7Fd4dkzoaHm4n5MqRwx0jy5vm+lYjfcNXa331gmi94c7VWK5tnLad0+Yz6fmzGtNxVwIECBBYGwI75UHraK/y5uQfk+uSOuJ/YKKtXOBxGfIbKx9mBAECBAgQWFyBP8rD1fvAP0nqNPHXk2ckGgECBAgQIDAHAuNO+c/BZtkEAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIEOiUwLqdmo3JECBAgMBSFdgyG/665JqOAayX+Xw1+deOzWul01HgV0pkAAECBAgsgsDz8xibJ2cuwmPN8hAbZPDLk6fNcqcujF2/C5MwBwIECBAgEIHrkzM6JlFnFm7t2JxaTedOrUYZRIAAAQIECPRKQIHv1e4yWQIECBAg0E5AgW/nZBQBAgQIEOiVgALfq91lsgQIECBAoJ2AAt/OySgCBAgQINArAQW+V7vLZAkQIECAQDsBBb6dk1EECBAgQKBXAgp8r3aXyRIgQIAAgXYCCnw7J6MIECBAgECvBLpY4Ou3623RK0WTJUCAAAECHRPoSoHfMC7HJJcm9SsB648NLE/OSQ5ONAIECBAgQGAGga78LvrjM+dtk32TC5Mq7psluybHJRslJyQaAQIECBAg0COBizLXKvDj2iPTeeq4G/QRIECAwNwI1F+Te0EHt6b+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" alt="plot of chunk unnamed-chunk-6"/> </p>
+
+<p>Now we have a variable in the data frame <code>dat</code> that gives a 1 where the subject was correct and a 0 elsewhere. In the next post, I will show some basic graphical exploration of this data set using the ggplot2 package.</p>
 
 <h2>PS</h2>
 
 <p>This blog was written in R Markdown (in R Studio as a .Rmd file -&gt; &ldquo;knit HTML&rdquo;, then paste the .md code directly into wordpress&hellip; too easy!)</p>
+
+<p>You can check out the repository for this and some upcoming posts in my Github repository (TODO).</p>
 
 <hr/>
 
