@@ -37,15 +37,25 @@ For the first few weeks of using ggplot2 I found this way of thinking about data
 Now we will look at the data from [my data import](http://tomwallis.info/2014/03/26/data-import-in-r/) post. This consists of data from a psychophysical experiment where five subjects detected sine wave gratings at different contrasts and spatial frequencies. For each trial, we have a binary response (grating left or right) which is either correct or incorrect. 
 
 
-```{r}
+
+```r
 library(ggplot2)
-fig <- ggplot(dat, aes(x = contrast, y = y)) + 
-  geom_line() + 
-  facet_grid(sf_factor ~ subject) + 
-  coord_cartesian(ylim = c(0.45, 1.05)) +
-  scale_x_log10() + 
-  scale_y_continuous(breaks = c(0.5, 0.75, 1))
+fig <- ggplot(dat, aes(x = contrast, y = y)) + geom_line() + facet_grid(sf_factor ~ 
+    subject) + coord_cartesian(ylim = c(0.45, 1.05)) + scale_x_log10() + scale_y_continuous(breaks = c(0.5, 
+    0.75, 1))
+```
+
+```
+## Error: object 'dat' not found
+```
+
+```r
 fig
 ```
+
+```
+## Error: object 'fig' not found
+```
+
 
 This post was just a little taste of what you can do in ggplot2, with a focus on vision science data. There are many longer introductions for ``ggplot2`` available on the web, like [here](http://blog.echen.me/2012/01/17/quick-introduction-to-ggplot2/) and [here](http://www.noamross.net/blog/2012/10/5/ggplot-introduction.html). I find that [The Cookbook for R](http://www.cookbook-r.com/) has heaps of useful little tips and code snippets, as well as showing you lots of basic ggplot things.
