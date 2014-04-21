@@ -1,4 +1,4 @@
-# Graphically Exploring Data
+# Graphically exploring data using ggplot2
 
 Your second step after importing should always be to *look at the data*. That means plotting lots of things, and getting a sense of how everything fits together. *Never* run a statistical test until you've looked at your data in as many ways as you can. Doing so can give you good intuitions about whether the comparisons you planned make sense to do, and whether any unexpected relationships are apparent in the data. The best tool for reproducible data exploration that I have used is Hadley Wickham's ``ggplot2`` package.
 
@@ -217,6 +217,6 @@ fig
 
 ## Going further with ggplot2
 
-What would happen if we wanted to see whether performance changed depending on the side of the retina (left or right of fixation) the grating was presented? Perhaps sensitivity is different, or the person has a bias in responding to a side. We can look at this by simply adding a new argument in the `aes()` function when we call `ggplot`: `colour = target_side`. Try it at home!
+What would happen if we wanted to see whether performance changed depending on the side of the retina (left or right of fixation) the grating was presented? Perhaps sensitivity is different, or the person has a bias in responding to a side. We can look at this by simply adding a new argument in the `aes()` function when we call `ggplot`: `colour = target_side`. Try it at home! There's an example of doing this in the `plots.R` script on [my github page](https://github.com/tomwallis/blog_stuff). Here you can also see how the plots are saved to the `/figs` subdirectory, where a document file (like a `.tex` doc) can be set up to automatically pull in the figures.
 
 This post was just a little taste of what you can do in ggplot2, with a focus on vision science data. There are many more thorough introductions for ``ggplot2`` available on the web, like [here](http://blog.echen.me/2012/01/17/quick-introduction-to-ggplot2/) and [here](http://www.noamross.net/blog/2012/10/5/ggplot-introduction.html). I find that [The Cookbook for R](http://www.cookbook-r.com/) has heaps of useful little tips and code snippets, as well as showing you lots of basic ggplot things in the plotting section. If you want an example of some published figures made with `ggplot2` as well as the code that generated them, you can see our recent paper [here](https://github.com/tomwallis/microperimetry_faces).
