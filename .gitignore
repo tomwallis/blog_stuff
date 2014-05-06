@@ -3,3 +3,7 @@
 .RData
 
 *.Rproj
+
+blog_posts/blog_posts.sublime-workspace
+
+blog_posts/blog_posts.sublime-project
