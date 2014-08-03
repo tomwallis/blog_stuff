@@ -1,0 +1,42 @@
+# Two things you can do to make your research more reproducible
+
+The push for improving the transparency and reproducibility of research is taking hold in many fields, and it's great to see. I'm grateful for the opportunity to share my ideas with readers in political science. I am a postdoctoral fellow researching human visual perception, using a combination of behavioural experiments and mechanistic modelling of perceptual processes. In my field (as in many others) it is typical for data, analyses and the code used to conduct experiments to be kept private. Thankfully, this culture is slowly changing. 
+
+In this post I will outline two simple things I think are useful to improve reproducibility. Since I don't know the research culture in political science, maybe these are things that you already do as a field. If so, great! If not, maybe you find these suggestions useful.
+
+One reason that people are resistant to making their materials publicly available is that it can seem like a lot of effort. I can sympathise with this: for some of my early papers it *would* be a lot of effort to present all the materials so that they could be understood by another human.
+
+The thing is, *I am effectively not the same human who layed out that spreadsheet all those years ago*. If I needed to go back and reproduce something from an old paper, it would probably take a few very unpleasant days. When I realised this, I made a big effort to improve my workflow with the aim that *I* should be able to reproduce my work with ease, years after the fact. Making materials available publicly is a simple extension of this approach to one's personal scientific workflow.
+
+With this in mind, I started blogging about things I've found useful. For example, [setting up a project directory](http://tomwallis.info/2014/01/16/setting-up-a-project-directory/) in a principled and extensible way helps you and others understand what is where. [Version control](http://tomwallis.info/2014/02/05/version-control-part-1-local-repository/) is a [good thing](http://tomwallis.info/2014/02/27/version-control-part-2-remote-repository/) but it can be overengineered and sometimes frustrating. Finally, integrating analyses into the manuscript using tools like [knitr](http://yihui.name/knitr/)is great from the perspective of a reproducibility perfectionist, but I've found can make things difficult in practice when your collaborators aren't using these tools. For this post, I wanted to concentrate on two simple steps that would easily improve the reproducibility of your science. 
+
+## 1. Script all your analyses
+
+In my opinion, the analyses in a scientific paper should be documented in a text file that can be executed to reproduce all the results (including figures and tables) in the paper. You can produce scripts in any good analysis environment, including R, Stata, SAS, SPSS and Python. If the analysis is complicated maybe this will include multiple files and functions. If that's the case, always tie the analyses together in a master script that, when executed, regenerates the whole thing.
+
+If you currently do your analyses in a spreadsheet: strongly consider changing your tools. It makes the analyses extremely hard to audit because you have to click through the cells to see the actual formulae. Furthermore, I would argue that spreadsheets are more prone to copy-paste and click-and-drag errors than code. Daniel Lemire has [two](http://lemire.me/blog/archives/2013/04/24/you-probably-shouldnt-use-a-spreadsheet-for-important-work/) [posts](http://lemire.me/blog/archives/2014/05/23/you-shouldnt-use-a-spreadsheet-for-important-work-i-mean-it/) on how spreadsheets have contributed to two controversial analyses in economics, and makes strong points there about why scientists shouldn't be using them.
+
+## 2. Give people the data as a text file
+
+You have some data, and you've done your analysis and written up your paper. Now you want to make your data available to others. As [Thomas Leeper](http://thomasleeper.com/) has previously written on this blog, it's a good idea to [put your data in an archive](http://politicalsciencereplication.wordpress.com/2014/05/21/guest-post-why-reproducibility-requires-data-archiving-by-thomas-leeper/). 
+
+The data file used for the analysis should obviously be provided, in whatever format you used it (an R data file, SPSS data file, Stata file, Matlab file, etc...). What I'm suggesting here is that you could *also* provide tabular data in a delimited text format (like .csv). This means that people can use your data in whatever analysis environment they like ([well, except maybe Matlab](http://abandonmatlab.wordpress.com/2012/08/07/matlab-cant-read-plain-text-data-out-of-a-wet-paper-bag/)). Any analysis environment, including spreadsheeting software, can export data files to delimited text formats.
+
+Better yet, make the data in the .csv informative so that things are as human-readable as possible. Instead of 
+
+  Gender, Age, Education
+  0, 28, 2
+  1, 27, 1
+  0, 32, 3
+
+use something more like
+
+  Gender, Age, Education 
+  'Female', 28, 'Bachelor'  
+  'Male', 27, 'High School'
+  'Female', 32, 'Postgraduate'
+
+Any analysis program worth its salt (see link above) should be able to import that, and realise that Age is a numeric variable whereas the other two are categorical.
+
+Maybe using scripts and distributing plain text data is already standard practice in political science: if so, great! If not, I think these would be simple steps you could take to improve the reproducibility of your science.
+

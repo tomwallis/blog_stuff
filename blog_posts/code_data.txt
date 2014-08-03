@@ -1,0 +1,23 @@
+# Code and data, or it didn't happen
+
+There is a new motto for reproducible research: ["code and data or it didn't happen"](https://twitter.com/fperez_org/status/428788889621262336) (see also [here](http://simplystatistics.org/2013/01/23/statisticians-and-computer-scientists-if-there-is-no-code-there-is-no-paper/)). I want this to apply more often in vision science, too. Since vision science experiments are usually entirely computer-controlled, implementing this should be a lot easier than in some other fields. For example, in social psychology raw data can be paper-based (participants fill out a questionnaire), making sharing that much harder.
+
+In my mind, vision science journals should begin *requiring* raw code, data and stimuli (if they're pictures that can't be regenerated) to accompany *every* published empirical article. The code and data would be maintained by the journal in a data repository (e.g. http://thedata.org/). 
+
+Why doesn't this happen already? One attitude I've encountered in the field is that "know-how" (for things like stimulus generation or data analysis -- proximally, the code that does these things) is somehow an in-house resource, only to be actively shared when people ask for it. 
+
+A great passage from [this recent article](http://www.slate.com/articles/health_and_science/science/2014/07/replication_controversy_in_psychology_bullying_file_drawer_effect_blog_posts.single.html?utm_source=dlvr.it&utm_medium=twitter) is relevant here:
+
+>... authors are not the owners of their methods or results. By publishing their results, original authors state that they have sufficient confidence in them that they should be included in the scientific record. That record belongs to everyone...
+
+So the code and data aren't yours. They don't belong to you once the paper is published (and arguably, not before then either). They belong to everyone -- *particularly* if your research was publicly-funded.
+
+Second, many people have the attitude that "well of course I would share the code / data if someone emailed me and asked for it". Maybe you would, but that doesn't guarantee that everyone will. I've previously encountered a refusal to share materials upon request, even several years after the paper was published. Better that these are made publicly available at the outset, rather than possibly refused (off the public record) later on.
+
+## A code / data embargo
+
+The only reason I can think of to refuse to share code and data at the time of publication is that the researcher has a reasonable expectation that they should be able to get more publications out of that material before others have the chance. Many others before me have suggested a compromise solution for this: a code / data embargo. The journal or a third party holds the materials, and after some period of time post-publication, releases it to the public. For example, [data dryad](http://datadryad.org/pages/repository) allow limited-term data embargoes to be set up.
+
+I think the embargo time is something field-specific. For example, [in some fields](http://smallpondscience.com/2014/03/03/i-own-my-data-until-i-dont/) it might make sense to have quite long embargoes. But human psychophysics data is relatively quick and cheap to collect (possibly excluding clinical data), so I see no reason why such data should be embargoed for more than a year. Perhaps for animal data or brain scanning data other timeframes might be appropriate, but in general, I think most people would be happy with this idea.
+
+Releasing your data to the community could yield interesting scientific advances that you never even considered when you conducted the experiment. This helps everyone (and nets you another citation). For a much more in-depth consideration of this issue, take a look at [this recent article](http://www.plosbiology.org/article/info%3Adoi%2F10.1371%2Fjournal.pbio.1001779).
