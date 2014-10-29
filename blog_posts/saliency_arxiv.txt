@@ -1,0 +1,19 @@
+# How close are we to understanding image-based saliency?
+
+How well can we predict where people look in stationary natural images? While the scope of this question addresses [only a fraction of what it means to understand eye movements in natural environments](http://www.journalofvision.org/content/11/5/5.long), it nevertheless remains a starting point to study this complex topic. It's also of great interest to both cognitive scientists and computer vision researchers since it has applications from advertising to robotics.
+
+Matthias Kümmerer has come up with a statistical framework that answers this question in a principled way. Building on [the nice work of Simon Barthelmé and colleagues](http://www.journalofvision.org/content/13/12/1), Matthias has shown how saliency models can be compared in units of *information* (i.e. using log-likelihoods). Since information provides a meaningful linear metric, it allows us to compare the *distance* between model predictions, a baseline (capturing image-independent spatial biases in fixations) and the gold standard (i.e. how well you *could possibly do*, knowing only the image). 
+
+So how close are we to understanding image-based saliency? Turns out, not very. The best model we tested (a state-of-the-art model from 2014 by [Vig, Dorr and Cox](http://coxlab.org/pdfs/cvpr2014_vig_saliency.pdf)) explained about one third of the possible information gain between the baseline and the gold standard in [the dataset we used](http://people.csail.mit.edu/tjudd/WherePeopleLook/index.html). If you want to predict where people look in stationary images, there's still a long way to go.
+
+In addition, our paper introduces methods to show, in individual images, *where* and *by how much* a model fails (see the image above). We think this is going to be really useful for people who are developing saliency models. Finally, we extend the approach to the temporal domain, showing that knowing about both spatial and temporal biases, but nothing about the image, gives you a better prediction than the best saliency model using only spatial information.
+
+The nice thing about this last point is that it shows that Matthias' method is very general. If you don't think that measuring where people look in stationary images tells you much about eye movements in the real world, that's fine. You can still use the method to quantify and compare data and models in your exciting new experiment.
+
+A paper that goes into much more detail than this blog post is [now available on arXiv](http://arxiv.org/abs/1409.7686). In particular, saliency experts should check out the appendices, where we think we've resolved some of the reasons why the saliency model comparison literature was so muddled. 
+
+We're close to submitting it, so we'd love to hear feedback on the pitch and nuance of our story, or anything that may not be clear in the paper. You can [send me an email](mailto:thomas.wallis@uni-tuebingen.de) to pass on your thoughts.
+
+When the paper is out we will also be making a software framework available for model comparison and evaluation. We hope the community will find these to be useful tools.
+
+
