@@ -1,0 +1,41 @@
+# Exploring GLMs with Python
+
+A few months ago [Philipp Berens](https://philippberens.wordpress.com/) and I ran a six week course introducing the Generalised Linear Model to graduate students. We decided do run the course in Python and to use the [IPython Notebook](http://ipython.org/notebook.html) to present the lectures. You can view the lecture notes [here](http://nbviewer.ipython.org/github/tomwallis/glm-intro/blob/master/index.ipynb) and get the source code [here](https://github.com/tomwallis/glm-intro).
+
+The six lectures were:
+
+1. Introduction by us, then student group presentations of a [points of significance](http://www.nature.com/collections/qghhqm/pointsofsignificance) article that we hoped would provide a refresher on basic statistics.
+2. Finishing off student presentations (which took too long in the first week), followed by an introduction to [Python, dataframes and exploratory plotting](http://nbviewer.ipython.org/github/tomwallis/glm-intro/blob/master/lectures/dataframes_plots.ipynb).
+3. [Design matrices](http://nbviewer.ipython.org/github/tomwallis/glm-intro/blob/master/lectures/design_matrices.ipynb)
+4. [Interactions](http://nbviewer.ipython.org/github/tomwallis/glm-intro/blob/master/lectures/Interactions.ipynb)
+5. [ANOVA](http://nbviewer.ipython.org/github/tomwallis/glm-intro/blob/master/lectures/ANOVA.ipynb) and [link functions](http://nbviewer.ipython.org/github/tomwallis/glm-intro/blob/master/lectures/link_functions.ipynb)
+6. Current issues in statistical practice, in which we touched on things like exploratory vs confirmatory data analysis, p-hacking, and the idea that statistics is not simply a cookbook one can mechanically follow.
+
+## What worked
+
+  * In general the feedback suggests that most students felt they benefitted from the course. Many reported that they enjoyed using the notebook and working through the course materials with a few exercises themselves. 
+  * The main goal of the course was to give students a broad understanding of how GLMs work and how many statistical procedures can be thought of as special cases of the GLM. Our teaching evaluations suggest that many people felt they achieved this.
+  * The notebooks allow tying the theory and equations very concretely to the computations one performs to do the analysis. I think many students found this helpful, particularly in working through the design matrices
+
+## What didn't
+
+  * Many students felt the course was too short for the material that we wanted to cover. I agree.
+  * Some students found the lectures (for which weeks 2--5 involved me working through notebooks and presenting extra material) boring. 
+  * Despite the niceness of the [Anaconda distribution](https://store.continuum.io/cshop/anaconda/), Python is unfortunately still not as easy to set up as (for example) MATLAB across different environments (primarily Windows, some OSX). We spent more time than we would have liked troubleshooting issues (mainly to do with different Windows versions not playing nicely with other things).
+  * We didn't spend a lot of time discussing the homework assignments in class.
+  * Some students (graduate students in the neural behavioural school) are more familiar with MATLAB and strongly preferred that we teach the course using that.
+
+
+## If I were to run the course again
+
+I think the main thing I would change if I ran the course again would be to have it run longer. As a "taste test" I think six weeks was fine, but to really get into the materials would require more lectures. 
+
+I also think it would be beneficial to split the content into lectures and practicals. I think the IPython notebooks in the way I used them would be excellent for teaching practical / small class tutorials, but that the lectures probably benefit from higher-level overviews and less scrolling over code*. 
+
+I would also plan the homework projects better. One student suggested that rather than having the introduction presentations at the beginning of the course, it would be nice to have the last lecture dedicated to students running through their analysis of a particular dataset in the notebook. I think that's a great idea.
+
+Finally, I would ignore the requests to do the course in MATLAB. Part of why we wanted to use Python or R to do the course was to equip students with tools that they could continue using (for free) if they leave the university environment. Perhaps this is more valuable to undergraduates than PhD students (who already have some MATLAB experience), but I think it's good for those students to get exposed to free alternatives as well. Plus, the IPython notebooks are just, well, pretty boss.
+
+
+
+*I know you can hide cells using the slide mode, but I found slide mode in general quite clunky and so I opted not to use it.

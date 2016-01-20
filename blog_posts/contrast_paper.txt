@@ -1,0 +1,26 @@
+# New paper: contrast, eye movements, movies and modelling
+
+Sensitivity to spatial distributions of luminance is a fundamental component of visual encoding. In vision science, contrast sensitivity has been studied most often using stimuli like sinusoidal luminance patterns ("gratings"). The contrast information in these stimuli is limited to a narrow band of scales and orientations. Visual encoding can be studied using these tiny building blocks, and the hope is that the full architectural design will become clear if we piece together enough of the tiny bricks and examine how they interact. 
+
+Real world visual input is messy and the interactions between the building blocks are strong. Furthermore, in the real world we make about 3 eye movements per second, whereas in traditional experiments observers keep their eyes still. 
+
+[In this paper](http://jov.arvojournals.org/Article.aspx?articleid=2322932), we attempt to quantify the effects of this real-world mess on sensitivity to luminance contrast. We had observers watch naturalistic movie stimuli (a nature documentary) while their gaze position was tracked. Every few seconds, a local patch of the movie was modified by increasing its contrast. The patch was yoked to the observer's gaze position, so that it always remained at the same position on the retina as the observer moved their eyes. The observer had to report the position of the target relative to their centre of gaze.
+
+We quantify how sensitivity depended on various factors including when and where observers moved their eyes and the content (in terms of low-level image structure) of the movies. Then we asked how well one traditional model of contrast processing could account for our data, comparing it to an atheoretical generalised linear model. In short, the parameters of the mechanistic model were poorly constrained by our data and hard to interpret, whereas the atheoretical model did just as well in terms of prediction. More complex mechanistic models may need to be tested to provide concise descriptions of behaviour in our task.
+
+I'm really happy that this paper is finally out. It's been a hard slog – the data were collected way back in 2010, and since then it has been through countless internal iterations. Happily, the reviews we received upon eventual submission were very positive (thanks to our two anonymous reviewers for slogging through this long paper and suggesting some great improvements). I've got plenty of ideas for what I would do differently next time we try something like this, and it's something I intend to follow up sometime. In the meantime, I'm interested to see what the larger community think about this work!
+
+To summarise, you might like to check out the paper if you're interested in:
+  
+  - contrast perception / processing
+  - eye movements
+  - naturalistic stimuli and image structure
+  - Bayesian estimation of model parameters
+  - combining all of the above in one piece of work
+
+You can download the paper [here](http://jov.arvojournals.org/Article.aspx?articleid=2322932). 
+
+The data analysis and modelling were all done in R; you can find the data and code [here](https://github.com/tomwallis/gcd_contrast). Note that I'm violating [one of my own suggestions](http://tomwallis.info/2014/01/16/setting-up-a-project-directory/) (see also [here](http://tomwallis.info/2014/01/09/a-workflow-principle-avoiding-humans-touching-data/)) in that the data are not shared in a text-only format. This is purely a constraint of file size – R binaries are much more compressed than the raw csv files, so they fit into a Github repository. Not ideal, but the best I can do right now.
+
+
+
